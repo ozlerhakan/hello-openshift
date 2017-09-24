@@ -1,0 +1,27 @@
+kind: "BuildConfig"
+apiVersion: "v1"
+metadata:
+  name: "hello-openshift" 
+spec:
+  successfulBuildsHistoryLimit: 2 
+  failedBuildsHistoryLimit: 2 
+  resources:
+    limits:
+      cpu: "1" 
+      memory: "500m" 
+  source: 
+    type: "Git"
+    git:
+      uri: "https://github.com/ozlerhakan/hello"
+      ref: "http"
+  strategy: 
+    type: "Docker"
+    dockerStrategy:
+      noCache: true
+      forcePull: true 
+  output:
+    to:
+      kind: "DockerImage"
+      name: "docker.io/kodcu/hello:latest"
+    pushSecret:
+      name: "registry"
