@@ -1,0 +1,85 @@
+kind: Template
+apiVersion: v1
+objects:
+  - kind: BuildConfig
+    apiVersion: "v1"
+    metadata:
+      name: "hello-openshift-docker-from-source" 
+    spec:
+      successfulBuildsHistoryLimit: 2 
+      failedBuildsHistoryLimit: 2 
+      source: 
+        type: "Git"
+        git:
+          uri: "https://github.com/ozlerhakan/hello"
+          ref: "http"
+      strategy:
+        type: "Docker"
+        dockerStrategy:
+          noCache: true
+          forcePull: true 
+      output:
+        to:
+          kind: "DockerImage"
+          name: "docker.io/kodcu/hello:latest"
+        pushSecret:
+          name: "registry"
+  - kind: DeploymentConfig
+    apiVersion: v1
+    metadata:
+      name: hello-backend-from-source
+    spec:
+      template: 
+        metadata:
+          labels:
+            name: "hello-selector"
+        spec:
+          containers:
+            - name: "hello-backend-service"
+              image: "docker.io/kodcu/hello:latest"
+              ports:
+                - containerPort: 8080
+                  protocol: "TCP"
+      replicas: "${{REPLICA_COUNT}}" # bunu 0 yaparsak deploy olmuyor!
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: "hello-openshift-docker-port-service"
+      annotations:
+        description: "Exposes the application pod"
+    spec:
+      ports:
+        - name: "from-docker-source"
+          port: 8080
+          targetPort: 8080
+          protocol: "TCP"
+      sessionAffinity: None
+      type: ClusterIP
+      selector:
+        name: "hello-selector"
+    status:
+      loadBalancer: {}
+  - kind: Route
+    apiVersion: v1
+    metadata:
+      name: hello-router
+    spec:
+      tls:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: edge
+      to:
+        kind: Service
+        name: hello-openshift-docker-port-service
+parameters:
+  - name: SOURCE_REPOSITORY_URL 
+    displayName: Source Repository URL 
+    description: The URL of the hello project 
+    value: https://github.com/ozlerhakan/hello.git
+    required: true 
+  - name: REPLICA_COUNT
+    description: Number of replicas to run
+    value: "1"
+    required: true
+message: "ORNEK BIR PROJENIN TEMPLETI DOCKER SOURCE OLARAK"
+metadata:
+  name: "hello-openshift-docker-source"

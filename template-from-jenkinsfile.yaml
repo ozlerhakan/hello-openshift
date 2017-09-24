@@ -1,0 +1,45 @@
+kind: Template
+apiVersion: v1
+objects:
+  - kind: "BuildConfig"
+    apiVersion: "v1"
+    metadata:
+      name: "hello-openshift-from-jenkins" 
+    spec:
+      successfulBuildsHistoryLimit: 2 
+      failedBuildsHistoryLimit: 2 
+      resources:
+        limits:
+          cpu: "1" 
+          memory: "500m" 
+      source: 
+        type: "Git"
+        git:
+          uri: ${SOURCE_REPOSITORY_URL}
+          ref: "http"
+      strategy:
+        jenkinsPipelineStrategy:
+          jenkinsfilePath: Jenkinsfile 
+  - kind: DeploymentConfig
+    apiVersion: v1
+    metadata:
+      name: hello-backend
+    spec:
+      replicas: "${{REPLICA_COUNT}}"
+
+
+    # buraya image gelmeli
+    # jenkinsfile icine openshitdeploy adimi ayarlanmali, oncesinde push saglanmali registrya
+parameters:
+  - name: SOURCE_REPOSITORY_URL 
+    displayName: Source Repository URL 
+    description: The URL of the hello project 
+    value: https://github.com/ozlerhakan/hello.git
+    required: true 
+  - name: REPLICA_COUNT
+    description: Number of replicas to run
+    value: "1"
+    required: true
+message: "ORNEK BIR PROJENIN TEMPLETI"
+metadata:
+  name: "hello-openshift-jenkinsfile-maven"
