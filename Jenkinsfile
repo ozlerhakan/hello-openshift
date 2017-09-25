@@ -29,9 +29,10 @@ node {
    stage('Deploy') {
       openshiftDeploy apiURL: '', authToken: '', depCfg: 'hello-backend-from-jenkins', namespace: 'demo', verbose: 'true', waitTime: '5', waitUnit: 'min'
    }
-def getImageVersion(){
+
 }
 
+def getImageVersion(){
     "0.0.1"
 }
 
