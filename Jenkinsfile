@@ -40,12 +40,14 @@ def dockerBuild(containerName, imageVersion){
     try {
         sh "docker -H unix:///var/run/docker.sock rmi -f `docker images *$containerName* -q`"
     } catch(error){}
-    sh "docker -H unix:///var/run/docker.sock build -f Dockerfile.java -t $containerName:latest  -t $containerName:$imageVersion ."
+    sh "docker -H unix:///var/run/docker.sock build -f Dockerfile.java -t $containerName:latest  -t $containerName:$imageVersion --pull --no-cache ."
 }
 
 def dockerPush(containerName, dockerHubUser, imageVersion){
-    sh "docker -H unix:///var/run/docker.sock tag $containerName:latest $dockerHubUser/$containerName:latest"
-    sh "docker -H unix:///var/run/docker.sock tag $containerName:$imageVersion $dockerHubUser/$containerName:$imageVersion"
-    sh "docker -H unix:///var/run/docker.sock push $dockerHubUser/$containerName:$imageVersion"
-    sh "docker -H unix:///var/run/docker.sock push $dockerHubUser/$containerName:latest"
+  withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+      sh "docker -H unix:///var/run/docker.sock tag $containerName:latest $dockerHubUser/$containerName:latest"
+      sh "docker -H unix:///var/run/docker.sock tag $containerName:$imageVersion $dockerHubUser/$containerName:$imageVersion"
+      sh "docker -H unix:///var/run/docker.sock push $dockerHubUser/$containerName:$imageVersion"
+      sh "docker -H unix:///var/run/docker.sock push $dockerHubUser/$containerName:latest"
+    }
 }
