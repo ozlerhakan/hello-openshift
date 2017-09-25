@@ -11,7 +11,7 @@ objects:
       resources:
         limits:
           cpu: "1" 
-          memory: "500m" 
+          memory: "1024m" 
       source: 
         type: "Git"
         git:
@@ -23,13 +23,49 @@ objects:
   - kind: DeploymentConfig
     apiVersion: v1
     metadata:
-      name: hello-backend
+      name: hello-backend-from-jenkins
     spec:
-      replicas: "${{REPLICA_COUNT}}"
-
-
-    # buraya image gelmeli
-    # jenkinsfile icine openshitdeploy adimi ayarlanmali, oncesinde push saglanmali registrya
+      template: 
+        metadata:
+          labels:
+            name: "hello-selector"
+        spec:
+          containers:
+            - name: "hello-service-from-jenkins"
+              image: "docker.io/kodcu/hello:latest"
+              ports:
+                - containerPort: 8080
+                  protocol: "TCP"
+    replicas: "${{REPLICA_COUNT}}"
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: "hello-openshift-docker-port-service"
+      annotations:
+        description: "Exposes the application pod"
+    spec:
+      ports:
+        - name: "from-docker-source"
+          port: 8080
+          targetPort: 8080
+          protocol: "TCP"
+      sessionAffinity: None
+      type: ClusterIP
+      selector:
+        name: "hello-selector"
+    status:
+      loadBalancer: {}
+  - kind: Route
+    apiVersion: v1
+    metadata:
+      name: hello-router
+    spec:
+      tls:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: edge
+      to:
+        kind: Service
+        name: hello-openshift-docker-port-service
 parameters:
   - name: SOURCE_REPOSITORY_URL 
     displayName: Source Repository URL 

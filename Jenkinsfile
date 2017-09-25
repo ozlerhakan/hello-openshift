@@ -11,7 +11,7 @@ node {
       def dockerHome = tool 'docker-17-06'
       // Get the Maven tool.
       def mvnHome = tool 'maven-3.5'
-      env.PATH = "${dockerHome}:${mvnHome}/bin:${env.PATH}"
+      env.PATH = "${dockerHome}/bin:${mvnHome}/bin:${env.PATH}"
    }
 
    stage('Build') {
@@ -29,22 +29,22 @@ node {
    stage('Deploy') {
       openshiftDeploy apiURL: '', authToken: '', depCfg: 'hello-backend-from-jenkins', namespace: 'demo', verbose: 'true', waitTime: '5', waitUnit: 'min'
    }
+def getImageVersion(){
 }
 
-def getImageVersion(){
     "0.0.1"
 }
 
 def dockerBuild(containerName, imageVersion){
     try {
-        sh "docker rmi -f `docker images *$containerName* -q`"
+        sh "docker -H unix:///var/run/docker.sock rmi -f `docker images *$containerName* -q`"
     } catch(error){}
-    sh "docker build -t $containerName:latest  -t $containerName:$imageVersion ."
+    sh "docker -H unix:///var/run/docker.sock build -f Dockerfile.java -t $containerName:latest  -t $containerName:$imageVersion ."
 }
 
 def dockerPush(containerName, dockerHubUser, imageVersion){
-    sh "docker tag $containerName:latest $dockerHubUser/$containerName:latest"
-    sh "docker tag $containerName:$imageVersion $dockerHubUser/$containerName:$imageVersion"
-    sh "docker push $dockerHubUser/$containerName:$imageVersion"
-    sh "docker push $dockerHubUser/$containerName:latest"
+    sh "docker -H unix:///var/run/docker.sock tag $containerName:latest $dockerHubUser/$containerName:latest"
+    sh "docker -H unix:///var/run/docker.sock tag $containerName:$imageVersion $dockerHubUser/$containerName:$imageVersion"
+    sh "docker -H unix:///var/run/docker.sock push $dockerHubUser/$containerName:$imageVersion"
+    sh "docker -H unix:///var/run/docker.sock push $dockerHubUser/$containerName:latest"
 }
