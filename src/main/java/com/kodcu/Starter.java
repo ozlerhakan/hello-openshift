@@ -1,9 +1,9 @@
-package com.kodcu.main;
+package com.kodcu;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages={"com.kodcu"})
+@SpringBootApplication
 public class Starter {
 
     public static void main(String[] args) {
