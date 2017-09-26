@@ -27,8 +27,11 @@ node {
    }
 
    stage('Deploy') {
-      openshiftDeploy apiURL: '', authToken: '', depCfg: 'hello-backend-from-jenkins', namespace: 'demo', verbose: 'true', waitTime: '5', waitUnit: 'min'
-      openshiftVerifyDeployment apiURL: '', authToken: '', depCfg: 'hello-backend-from-jenkins', namespace: 'demo', replicaCount: '1', verbose: 'true', verifyReplicaCount: 'true', waitTime: '5', waitUnit: 'min'
+      openshiftDeploy apiURL: '', authToken: '', depCfg: 'hello-backend-from-jenkins', namespace: 'demo', verbose: 'true', waitTime: '1', waitUnit: 'min'
+   }
+
+   stage('Deploy Verify') {
+      openshiftVerifyDeployment apiURL: '', authToken: '', depCfg: 'hello-backend-from-jenkins', namespace: 'demo', replicaCount: '1', verbose: 'true', verifyReplicaCount: 'true', waitTime: '1', waitUnit: 'min'
 
    }
 
