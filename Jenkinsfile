@@ -20,6 +20,10 @@ node {
       sh "mvn clean install" 
    }
 
+   stage('Test') {
+      sh "mvn test" 
+   }
+
    stage('Publish to Docker Registry') {
       imageVersion = getImageVersion()
       dockerBuild(containerName, imageVersion)
