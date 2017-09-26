@@ -28,7 +28,7 @@ objects:
       template: 
         metadata:
           labels:
-            name: "hello-selector"
+            name: "hello-selector-jenkins"
         spec:
           containers:
             - name: "hello-service-from-jenkins"
@@ -40,7 +40,7 @@ objects:
   - kind: Service
     apiVersion: v1
     metadata:
-      name: "hello-openshift-docker-port-service"
+      name: "hello-jenkins-service"
       annotations:
         description: "Exposes the application pod"
     spec:
@@ -52,20 +52,20 @@ objects:
       sessionAffinity: None
       type: ClusterIP
       selector:
-        name: "hello-selector"
+        name: "hello-selector-jenkins"
     status:
       loadBalancer: {}
   - kind: Route
     apiVersion: v1
     metadata:
-      name: hello-router
+      name: hello-router-jenkins
     spec:
       tls:
         insecureEdgeTerminationPolicy: Redirect
         termination: edge
       to:
         kind: Service
-        name: hello-openshift-docker-port-service
+        name: hello-jenkins-service
 parameters:
   - name: SOURCE_REPOSITORY_URL 
     displayName: Source Repository URL 
