@@ -43,16 +43,16 @@ def getImageVersion(){
 
 def dockerBuild(containerName, imageVersion){
     try {
-        sh "docker -H unix:///var/run/docker.sock image prune -f"
+        sh "docker image prune -f"
     } catch(error){}
-    sh "docker -H unix:///var/run/docker.sock build -f Dockerfile.java -t $containerName:latest  -t $containerName:$imageVersion --pull --no-cache ."
+    sh "docker build -f Dockerfile.java -t $containerName:latest  -t $containerName:$imageVersion --pull --no-cache ."
 }
 
 def dockerPush(containerName, dockerHubUser, imageVersion){
   withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-      sh "docker -H unix:///var/run/docker.sock tag $containerName:latest $dockerHubUser/$containerName:latest"
-      sh "docker -H unix:///var/run/docker.sock tag $containerName:$imageVersion $dockerHubUser/$containerName:$imageVersion"
-      sh "docker -H unix:///var/run/docker.sock push $dockerHubUser/$containerName:$imageVersion"
-      sh "docker -H unix:///var/run/docker.sock push $dockerHubUser/$containerName:latest"
+      sh "docker tag $containerName:latest $dockerHubUser/$containerName:latest"
+      sh "docker tag $containerName:$imageVersion $dockerHubUser/$containerName:$imageVersion"
+      sh "docker push $dockerHubUser/$containerName:$imageVersion"
+      sh "docker push $dockerHubUser/$containerName:latest"
     }
 }
