@@ -38,7 +38,7 @@ def getImageVersion(){
 
 def dockerBuild(containerName, imageVersion){
     try {
-        sh "docker -H unix:///var/run/docker.sock rmi -f `docker images *$containerName* -q`"
+        sh "docker -H unix:///var/run/docker.sock image prune -f"
     } catch(error){}
     sh "docker -H unix:///var/run/docker.sock build -f Dockerfile.java -t $containerName:latest  -t $containerName:$imageVersion --pull --no-cache ."
 }
